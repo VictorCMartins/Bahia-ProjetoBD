@@ -1,0 +1,117 @@
+CREATE TABLE Cliente (
+ClienteID INT,
+Empresa VARCHAR( 40 ) ,
+Endereco VARCHAR( 60 ),
+Cidade VARCHAR( 15 ),
+Estado VARCHAR( 15 ),
+CEP VARCHAR( 10 ),
+Pais VARCHAR( 15 ),
+Fone VARCHAR( 24 ),
+PRIMARY KEY (ClienteID));
+
+CREATE TABLE Fornecedor (
+FornecedorID int not null,
+nome varchar(40),
+endereco varchar(60),
+primary key (FornecedorID));
+
+
+CREATE TABLE Vendedor (
+VendedorID INT NOT NULL,
+Nome VARCHAR( 40 ) NOT NULL,
+PRIMARY KEY ( VendedorID ));
+
+CREATE TABLE Produto(
+ProdutoID INT not null,
+Descricao varchar (40) ,
+PrecoUnitario real,
+FornecedorID int,
+primary key (ProdutoID),
+FOREIGN KEY (FornecedorID) REFERENCES Fornecedor(FornecedorID));
+ 
+
+CREATE TABLE Pedido (
+PedidoID INT ,
+VendedorID INT,
+ClienteID INT,
+ProdutoID INT,
+Quantidade INT,
+PRIMARY KEY ( PedidoID ),
+FOREIGN KEY (VendedorID) REFERENCES Vendedor(VendedorID),
+FOREIGN KEY (ClienteID) REFERENCES Cliente(ClienteID),
+FOREIGN KEY (ProdutoID) REFERENCES Produto(ProdutoID));
+
+CREATE FUNCTION FornecedorProduto (a VARCHAR(30))
+RETURNS VARCHAR(60)
+RETURN
+(SELECT CONCAT(Produto.Descricao, ' é fornecido por: ', Fornecedor.nome)  
+              FROM Produto INNER JOIN Fornecedor ON Produto.FornecedorID=Fornecedor.FornecedorID
+              WHERE Produto.Descricao = a);
+
+CREATE FUNCTION ajuste (a DECIMAL(10,2), b INT)
+    RETURNS DECIMAL(10,2)
+    RETURN a * b;
+
+INSERT INTO Cliente Values ( 1, 'ACM', 'Rua das Flores, 10',
+'Sao Paulo', 'SP', '1222000', 'Brasil', '112233445566');
+INSERT INTO Cliente Values ( 2, 'VW', 'Rua do Comercio, 47',
+'Sao Paulo', 'SP', '1222010', 'Brasil', '11298735566');
+INSERT INTO Cliente Values ( 3, 'GM', 'Via Dutra, 1000',
+'Santos', 'SP', '987654', 'Brasil', '123456');
+INSERT INTO Cliente Values ( 4, 'TEX', 'AV Brasil, 1210', 'Rio
+de Janeiro', 'RJ', '348890', 'Brasil', '212134567');
+
+
+INSERT INTO Vendedor Values ( 1, 'Jose');
+INSERT INTO Vendedor Values ( 2, 'Luis');
+INSERT INTO Vendedor Values ( 3, 'Andre');
+
+INSERT INTO Fornecedor Values ( 1, 'Ferragens Santa Lucia',
+'Rua Catalao, 20, Goiania, GO');
+INSERT INTO Fornecedor Values ( 2, 'Borracharia Campos', 'Rua
+dos Ipes 1235, Presidente Prudente, SP');
+INSERT INTO Fornecedor Values ( 3, 'Tintas Brasil', 'Avenida
+dos Guararapes 44, Paulinia, SP');
+INSERT INTO Fornecedor Values ( 4, 'Tintas Paraguay', null);
+INSERT INTO Fornecedor Values ( 5, 'Tintas Azuis', null);
+INSERT INTO Fornecedor Values ( 6, 'Cimento do bom', null);
+
+INSERT INTO Produto Values ( 1, 'Roda', 500.00, 2);
+INSERT INTO Produto Values ( 2, 'Mola', 234.00, 1 );
+INSERT INTO Produto Values ( 3, 'Porca', 11.00, 1);
+INSERT INTO Produto Values ( 4, 'Parafuso', 5.30, 1 );
+INSERT INTO Produto Values ( 5, 'Prego', 1.20, 2 );
+INSERT INTO Produto Values ( 6, 'Tinta',234.00,  3 );
+
+INSERT INTO Pedido Values ( 1, 2, 4, 2, 450);
+INSERT INTO Pedido Values ( 2, 1, 2, 1, 123);
+INSERT INTO Pedido Values ( 3, 2, 1, 2, 60);
+INSERT INTO Pedido Values ( 4, 3, 2, 2, 121);
+INSERT INTO Pedido Values ( 5, 3, 3, 6, 65);
+INSERT INTO Pedido Values ( 6, 1, 3, 5, 36);
+INSERT INTO Pedido Values ( 7, 2, 1, 5, 140);
+INSERT INTO Pedido Values ( 8, 3, 4, 1, 200);
+INSERT INTO Pedido Values ( 9, 3, 2, 3, 67);
+INSERT INTO Pedido Values ( 10, 1, 2, 3, 89);
+
+select ProdutoID, Descricao from Produto where ProdutoID between 2 and 5;
+
+select  ProdutoID, Descricao from Produto where Descricao like 'Mola';
+
+select  ProdutoID, Descricao from Produto where FornecedorID in (1, 2);
+
+select * from Fornecedor where endereco is null;
+
+select PedidoID, Quantidade from Pedido where Quantidade > 10 order by Quantidade;
+
+select SUM(Quantidade) as Total from Pedido;
+
+select AVG(Quantidade) as Media from Pedido;
+
+select COUNT(PedidoID) as QTD_PEDIDOS from Pedido;
+
+select FornecedorProduto('Mola') as Pesquisa;
+
+SELECT Descricao, ajuste(PrecoUnitario, 2) AS 'Novo valor'
+FROM Produto
+WHERE ProdutoID = 5;
